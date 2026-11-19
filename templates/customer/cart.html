@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Shopping Cart | RoadReady</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+</head>
+
+<body class="cart-page">
+
+    <main class="cart-container">
+
+        <header class="cart-header">
+            <div>
+                <p class="eyebrow">ROADREADY MARKETPLACE</p>
+                <h1>Shopping Cart</h1>
+                <p>Review your selected automotive parts.</p>
+            </div>
+
+            <a href="{{ url_for('parts.browse_parts') }}" class="continue-shopping">
+                ← Continue Shopping
+            </a>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="cart-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if cart_items %}
+
+            <div class="cart-layout">
+
+                <!-- Cart Products -->
+                <section class="cart-products">
+
+                    <div class="cart-section-heading">
+                        <h2>Your Items</h2>
+                        <span>{{ cart_items|length }} products</span>
+                    </div>
+
+                    {% for item in cart_items %}
+
+                        <article class="cart-item">
+
+                            <div class="cart-item-image">
+                                <span>🔧</span>
+                            </div>
+
+                            <div class="cart-item-information">
+
+                                <h3>{{ item.part_name }}</h3>
+
+                                <p>{{ item.brand }}</p>
+
+                                <p class="cart-part-number">
+                                    Part #: {{ item.part_number }}
+                                </p>
+
+                                <span class="cart-condition">
+                                    {{ item.condition|replace('_', ' ')|title }}
+                                </span>
+
+                                <p class="cart-stock">
+                                    {{ item.total_stock }} available
+                                </p>
+
+                            </div>
+
+                            <div class="cart-item-actions">
+
+                                <p class="cart-unit-price">
+                                    ${{ "%.2f"|format(item.unit_price) }}
+                                </p>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('cart.update_cart', sku_id=item.sku_id) }}"
+                                    class="quantity-form"
+                                >
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <label for="quantity-{{ item.sku_id }}">
+                                        Quantity
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="quantity-{{ item.sku_id }}"
+                                        name="quantity"
+                                        min="1"
+                                        max="{{ item.total_stock }}"
+                                        value="{{ item.quantity }}"
+                                        required
+                                    >
+
+                                    <button type="submit">
+                                        Update
+                                    </button>
+                                </form>
+
+                                <p class="cart-line-total">
+                                    ${{ "%.2f"|format(item.line_subtotal + item.line_core_charge) }}
+                                </p>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('cart.remove_from_cart', sku_id=item.sku_id) }}"
+                                >
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <button type="submit" class="remove-item">
+                                        Remove
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </section>
+
+                <!-- Order Summary -->
+                <aside class="cart-summary">
+
+                    <h2>Order Summary</h2>
+
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <strong>${{ "%.2f"|format(subtotal) }}</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Core Charges</span>
+                        <strong>${{ "%.2f"|format(total_core_charges) }}</strong>
+                    </div>
+
+                    <div class="summary-divider"></div>
+
+                    <div class="summary-total">
+                        <span>Estimated Total</span>
+                        <strong>${{ "%.2f"|format(grand_total) }}</strong>
+                    </div>
+
+                    <p class="summary-note">
+                        Taxes, delivery fees, and applicable discounts
+                        will be calculated during checkout.
+                    </p>
+
+                    <button type="button" class="checkout-button" disabled>
+                        Checkout - Coming Soon
+                    </button>
+
+                    <a href="{{ url_for('parts.browse_parts') }}" class="continue-link">
+                        Continue Shopping
+                    </a>
+
+                </aside>
+
+            </div>
+
+        {% else %}
+
+            <section class="empty-cart">
+
+                <span>🛒</span>
+
+                <h2>Your cart is empty</h2>
+
+                <p>
+                    You haven't added any automotive parts yet.
+                    Browse our catalog to find what you need.
+                </p>
+
+                <a href="{{ url_for('parts.browse_parts') }}">
+                    Browse Auto Parts
+                </a>
+
+            </section>
+
+        {% endif %}
+
+    </main>
+
+</body>
+</html>

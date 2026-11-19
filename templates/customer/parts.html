@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Browse Auto Parts | RoadReady</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/parts.css') }}">
+</head>
+
+<body class="parts-page">
+
+    <main class="parts-container">
+
+        <header class="parts-header">
+            <div>
+                <p class="eyebrow">ROADREADY MARKETPLACE</p>
+                <h1>Browse Auto Parts</h1>
+                <p class="page-description">
+                    Find quality automotive parts for your vehicle.
+                </p>
+            </div>
+
+            <a href="{{ url_for('customer.dashboard') }}" class="back-link">
+                ← Dashboard
+            </a>
+        </header>
+
+        <!-- Search and Filters -->
+        <section class="search-panel">
+
+            <form method="GET" action="{{ url_for('parts.browse_parts') }}">
+
+                <div class="search-group">
+                    <label for="q">Search Products</label>
+
+                    <input
+                        type="search"
+                        id="q"
+                        name="q"
+                        placeholder="Search by part name, brand, or part number..."
+                        value="{{ search_query }}"
+                    >
+                </div>
+
+                <div class="filter-row">
+
+                    <div class="filter-group">
+                        <label for="category">Category</label>
+
+                        <select id="category" name="category">
+                            <option value="">All Categories</option>
+
+                            {% for category in categories %}
+                                <option
+                                    value="{{ category[0] }}"
+                                    {% if selected_category|string == category[0]|string %}selected{% endif %}
+                                >
+                                    {{ category[1] }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="vehicle">My Vehicle</label>
+
+                        <select id="vehicle" name="vehicle">
+                            <option value="">All Vehicles</option>
+
+                            {% for vehicle in customer_vehicles %}
+                                <option
+                                    value="{{ vehicle[0] }}"
+                                    {% if selected_vehicle_id|string == vehicle[0]|string %}selected{% endif %}
+                                >
+                                    {{ vehicle[4] }} {{ vehicle[2] }} {{ vehicle[3] }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="search-button">
+                        Search Parts
+                    </button>
+
+                </div>
+            </form>
+
+        </section>
+
+        <!-- Product Results -->
+        <section class="catalog-section">
+
+            <div class="catalog-heading">
+                <div>
+                    <p class="eyebrow">PRODUCT CATALOG</p>
+                    <h2>Available Parts</h2>
+                </div>
+
+                <span class="result-count">
+                    {{ products|length }} results
+                </span>
+            </div>
+
+            {% if products %}
+
+                <div class="product-grid">
+
+                    {% for product in products %}
+
+                        <article class="product-card">
+
+                            <div class="product-image">
+                                <span>🔧</span>
+                                <span class="condition-badge">
+                                    {{ product[8]|replace('_', ' ')|title }}
+                                </span>
+                            </div>
+
+                            <div class="product-information">
+
+                                <p class="product-category">
+                                    {{ product[6] }}
+                                </p>
+
+                                <h3>
+                                    <a href="{{ url_for('product_details.view_product', part_id=product[1]) }}"
+                                    class="product-title-link">
+                                    {{ product[3] }}
+                                    </a>
+                                </h3>
+
+                                <p class="product-brand">
+                                    {{ product[5] }}
+                                </p>
+
+                                <p class="product-number">
+                                    Part #: {{ product[2] }}
+                                </p>
+
+                                <p class="product-description">
+                                    {{ product[4] or "No description available." }}
+                                </p>
+
+                                <div class="product-details">
+                                    <span>
+                                        {{ product[7] }}-month warranty
+                                    </span>
+
+                                    {% if product[11] > 0 %}
+                                        <span class="stock-available">
+                                            In Stock
+                                        </span>
+                                    {% else %}
+                                        <span class="stock-unavailable">
+                                            Out of Stock
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="product-price-row">
+
+                                    <div>
+                                        <p class="price-label">Unit Price</p>
+                                        <p class="product-price">
+                                            ${{ "%.2f"|format(product[9]) }}
+                                        </p>
+                                    </div>
+
+                                    {% if product[10] > 0 %}
+                                        <span class="core-charge">
+                                            + ${{ "%.2f"|format(product[10]) }} core charge
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="add-cart-button"
+                                    disabled
+                                    title="Shopping cart will be implemented next"
+                                >
+                                    Coming Soon
+                                </button>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-catalog">
+                    <span>🔍</span>
+                    <h3>No parts found</h3>
+                    <p>
+                        Try another search term or change your filters.
+                    </p>
+
+                    <a href="{{ url_for('parts.browse_parts') }}">
+                        Clear Filters
+                    </a>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+</html>

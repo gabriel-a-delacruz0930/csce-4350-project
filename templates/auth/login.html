@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign In | RoadReady</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <section class="auth-brand-panel">
+
+            <a href="{{ url_for('home') }}" class="brand-logo">
+                <span class="brand-icon">R</span>
+                <span>RoadReady</span>
+            </a>
+
+            <div class="brand-content">
+                <span class="eyebrow">YOUR AUTOMOTIVE PARTNER</span>
+
+                <h1>
+                    Keep your vehicle
+                    <span>road ready.</span>
+                </h1>
+
+                <p>
+                    Find the parts you need, manage your vehicles,
+                    and keep everything running smoothly.
+                </p>
+
+                <div class="brand-feature">
+                    <span class="feature-icon">✓</span>
+                    Quality automotive parts
+                </div>
+
+                <div class="brand-feature">
+                    <span class="feature-icon">✓</span>
+                    Easy order management
+                </div>
+
+                <div class="brand-feature">
+                    <span class="feature-icon">✓</span>
+                    Personalized vehicle support
+                </div>
+            </div>
+
+            <p class="brand-footer">
+                Built for drivers. Designed for the road.
+            </p>
+
+        </section>
+
+
+        <section class="auth-form-panel">
+
+            <div class="auth-form-container">
+
+                <div class="mobile-brand">
+                    <span class="brand-icon">R</span>
+                    <span>RoadReady</span>
+                </div>
+
+                <div class="form-heading">
+                    <span class="eyebrow">CUSTOMER ACCOUNT</span>
+                    <h2>Welcome back</h2>
+                    <p>Enter your details to access your account.</p>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert {{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST"
+                      action="{{ url_for('auth.login') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <div class="form-group">
+                        <label for="username">Username or email</label>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Enter your username or email"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <div class="password-label">
+                            <label for="password">Password</label>
+                        </div>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="auth-button">
+                        Sign In
+                        <span>→</span>
+                    </button>
+
+                </form>
+
+                <div class="auth-divider">
+                    <span>NEW TO ROADREADY?</span>
+                </div>
+
+                <a href="{{ url_for('auth.register') }}"
+                   class="secondary-button">
+                    Create an account
+                </a>
+
+                <p class="auth-terms">
+                    By continuing, you agree to use RoadReady
+                    responsibly and keep your account secure.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

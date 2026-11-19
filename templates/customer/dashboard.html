@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Dashboard | RoadReady</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body>
+
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <a href="{{ url_for('customer.dashboard') }}"
+               class="brand-logo">
+                <span class="brand-icon">R</span>
+                <span>RoadReady</span>
+            </a>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">MAIN MENU</span>
+
+                <a href="{{ url_for('customer.dashboard') }}"
+                   class="nav-link active">
+                    <span>⌂</span> Dashboard
+                </a>
+
+                <a href="{{ url_for('parts.browse_parts') }}"class="nav-link">
+                    <span>▣</span> Browse Parts
+                </a>
+
+                <a href="#" class="nav-link">
+                    <span>▤</span> My Orders
+                </a>
+
+                <a href="{{ url_for('vehicles.my_vehicles') }}" class="nav-link">
+                    <span>🚗</span> My Vehicles
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">ACCOUNT</span>
+
+                <a href="#" class="nav-link">
+                    <span>◉</span> My Profile
+                </a>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ user.first_name[0] }}{{ user.last_name[0] }}
+                    </div>
+
+                    <div class="user-details">
+                        <strong>
+                            {{ user.first_name }} {{ user.last_name }}
+                        </strong>
+                        <span>Customer</span>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('auth.logout') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button type="submit" class="logout-button">
+                        Sign Out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+
+        <!-- Main content -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <span class="breadcrumb">CUSTOMER PORTAL</span>
+                    <h2>Dashboard</h2>
+                </div>
+
+                <div class="topbar-user">
+                    <div class="user-avatar">
+                        {{ user.first_name[0] }}{{ user.last_name[0] }}
+                    </div>
+                </div>
+            </header>
+
+
+            <section class="welcome-banner">
+
+                <div>
+                    <span class="eyebrow">YOUR ROADREADY ACCOUNT</span>
+
+                    <h1>
+                        Welcome back, {{ user.first_name }}!
+                    </h1>
+
+                    <p>
+                        Manage your vehicles, explore auto parts,
+                        and keep track of your orders.
+                    </p>
+
+                    <a href="#" class="primary-button">
+                        Explore Auto Parts →
+                    </a>
+                </div>
+
+                <div class="banner-decoration">
+                    <span>R</span>
+                </div>
+
+            </section>
+
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Quick Access</h2>
+                        <p>Everything you need in one place.</p>
+                    </div>
+                </div>
+
+
+                <div class="quick-access-grid">
+
+                    <a href="#" class="action-card">
+                        <div class="action-icon blue">▣</div>
+                        <h3>Browse Parts</h3>
+                        <p>Find automotive parts for your vehicle.</p>
+                        <span class="card-arrow">→</span>
+                    </a>
+
+                    <a href="#" class="action-card">
+                        <div class="action-icon purple">🚗</div>
+                        <h3>My Vehicles</h3>
+                        <p>Manage your registered vehicles.</p>
+                        <span class="card-arrow">→</span>
+                    </a>
+
+                    <a href="#" class="action-card">
+                        <div class="action-icon green">▤</div>
+                        <h3>My Orders</h3>
+                        <p>View purchases and order status.</p>
+                        <span class="card-arrow">→</span>
+                    </a>
+
+                    <a href="#" class="action-card">
+                        <div class="action-icon orange">◉</div>
+                        <h3>My Profile</h3>
+                        <p>Manage your personal information.</p>
+                        <span class="card-arrow">→</span>
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Getting Started</h2>
+                        <p>Make the most of your RoadReady account.</p>
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-icon">✦</div>
+
+                    <div>
+                        <h3>Welcome to RoadReady</h3>
+                        <p>
+                            Start by adding your vehicle to your account.
+                            This will help you find compatible automotive
+                            parts more easily.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+
+            <footer class="dashboard-footer">
+                © 2026 RoadReady. All rights reserved.
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

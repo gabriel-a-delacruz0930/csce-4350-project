@@ -1,0 +1,319 @@
+
+/* =====================================
+   ROADREADY - PRODUCT DETAILS
+===================================== */
+
+.product-details-page {
+    min-height: 100vh;
+    background: #0b1120;
+    color: #e5e7eb;
+}
+
+.details-container {
+    width: min(1150px, 92%);
+    margin: auto;
+    padding: 40px 0 70px;
+}
+
+.back-link {
+    display: inline-block;
+    color: #93c5fd;
+    text-decoration: none;
+    margin-bottom: 25px;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: #60a5fa;
+}
+
+.eyebrow {
+    color: #60a5fa;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+/* Main product information */
+
+.details-card {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 35px;
+    background: #151f32;
+    border: 1px solid #27364d;
+    border-radius: 18px;
+    padding: 30px;
+    margin-bottom: 45px;
+    animation: fadeIn 0.5s ease;
+}
+
+.details-image {
+    min-height: 330px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1e3a5f, #172554, #1e293b);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.details-image span {
+    font-size: 6rem;
+}
+
+.details-image p {
+    color: #93c5fd;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.details-information {
+    padding: 10px 0;
+}
+
+.details-information h1 {
+    color: #f8fafc;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    margin: 0 0 10px;
+}
+
+.details-brand {
+    color: #cbd5e1;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.details-number {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.details-description {
+    color: #94a3b8;
+    line-height: 1.7;
+    margin: 25px 0;
+}
+
+.details-specifications {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    border-top: 1px solid #27364d;
+    padding-top: 20px;
+}
+
+.details-specifications div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.details-specifications span {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.details-specifications strong {
+    color: #e2e8f0;
+    font-size: 0.85rem;
+}
+
+/* Section headings */
+
+.section-heading {
+    margin-bottom: 22px;
+}
+
+.section-heading h2 {
+    color: #f8fafc;
+    font-size: 1.6rem;
+    margin: 0;
+}
+
+/* Purchasing options */
+
+.sku-section {
+    margin-bottom: 45px;
+}
+
+.sku-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+}
+
+.sku-card {
+    background: #151f32;
+    border: 1px solid #27364d;
+    border-radius: 14px;
+    padding: 23px;
+    transition: 0.25s ease;
+}
+
+.sku-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-4px);
+}
+
+.condition-label {
+    display: inline-block;
+    background: #1e3a5f;
+    color: #bfdbfe;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.sku-price {
+    color: #f8fafc;
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 20px 0 8px;
+}
+
+.sku-core {
+    color: #fbbf24;
+    font-size: 0.8rem;
+}
+
+.sku-stock {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin: 18px 0;
+}
+
+.sku-stock.available {
+    color: #4ade80;
+}
+
+.sku-stock.unavailable {
+    color: #f87171;
+}
+
+.sku-card button {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #475569;
+    border-radius: 9px;
+    background: #334155;
+    color: #94a3b8;
+    font-weight: 700;
+    cursor: not-allowed;
+}
+
+/* Compatible vehicles */
+
+.compatibility-section {
+    margin-bottom: 30px;
+}
+
+.vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+}
+
+.compatible-vehicle {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #151f32;
+    border: 1px solid #27364d;
+    border-radius: 12px;
+    padding: 18px;
+    transition: border-color 0.2s ease;
+}
+
+.compatible-vehicle:hover {
+    border-color: #3b82f6;
+}
+
+.compatible-vehicle > span {
+    font-size: 1.8rem;
+}
+
+.compatible-vehicle strong {
+    color: #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.compatible-vehicle p {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin: 6px 0 0;
+}
+
+.no-fitment {
+    background: #151f32;
+    border: 1px solid #27364d;
+    border-radius: 12px;
+    padding: 25px;
+    color: #94a3b8;
+}
+
+/* Animation */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive design */
+
+@media (max-width: 750px) {
+    .details-card {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    .details-image {
+        min-height: 230px;
+    }
+
+    .details-specifications {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .details-card {
+        animation: none;
+    }
+
+    .sku-card,
+    .compatible-vehicle {
+        transition: none;
+    }
+
+    .sku-card:hover {
+        transform: none;
+    }
+}
+.add-to-cart-button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 10px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.add-to-cart-button:hover {
+    background: #3b82f6;
+    transform: translateY(-2px);
+}

@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Product Details | RoadReady</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/product_details.css') }}">
+</head>
+
+<body class="product-details-page">
+
+    <main class="details-container">
+
+        <a href="{{ url_for('parts.browse_parts') }}" class="back-link">
+            ← Back to Auto Parts
+        </a>
+
+        {% set product = products[0] %}
+
+        <section class="details-card">
+
+            <div class="details-image">
+                <span>🔧</span>
+                <p>ROADREADY AUTO PARTS</p>
+            </div>
+
+            <div class="details-information">
+
+                <p class="eyebrow">{{ product[5] }}</p>
+
+                <h1>{{ product[2] }}</h1>
+
+                <p class="details-brand">{{ product[4] }}</p>
+
+                <p class="details-number">
+                    Part Number: {{ product[1] }}
+                </p>
+
+                <p class="details-description">
+                    {{ product[3] or "No product description available." }}
+                </p>
+
+                <div class="details-specifications">
+
+                    <div>
+                        <span>Warranty</span>
+                        <strong>{{ product[6] }} Months</strong>
+                    </div>
+
+                    <div>
+                        <span>Brand</span>
+                        <strong>{{ product[4] }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Category</span>
+                        <strong>{{ product[5] }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Available Product Options -->
+        <section class="sku-section">
+
+            <div class="section-heading">
+                <p class="eyebrow">PURCHASING OPTIONS</p>
+                <h2>Available Options</h2>
+            </div>
+
+            <div class="sku-grid">
+
+                {% for option in products %}
+
+                    <article class="sku-card">
+
+                        <span class="condition-label">
+                            {{ option[8]|replace('_', ' ')|title }}
+                        </span>
+
+                        <p class="sku-price">
+                            ${{ "%.2f"|format(option[9]) }}
+                        </p>
+
+                        {% if option[10] > 0 %}
+                            <p class="sku-core">
+                                Additional core charge:
+                                ${{ "%.2f"|format(option[10]) }}
+                            </p>
+                        {% endif %}
+
+                        {% if option[11] > 0 %}
+                            <p class="sku-stock available">
+                                ✓ In Stock
+                            </p>
+                        {% else %}
+                            <p class="sku-stock unavailable">
+                                Currently Out of Stock
+                            </p>
+                        {% endif %}
+
+                        <form method="POST" action="{{ url_for('cart.add_to_cart') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <input
+        type="hidden"
+        name="sku_id"
+        value="{{ option[7] }}"
+    >
+
+    <button type="submit" class="add-to-cart-button">
+        Add to Cart
+    </button>
+</form>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <!-- Compatible Vehicles -->
+        <section class="compatibility-section">
+
+            <div class="section-heading">
+                <p class="eyebrow">VEHICLE FITMENT</p>
+                <h2>Compatible Vehicles</h2>
+            </div>
+
+            {% if compatible_vehicles %}
+
+                <div class="vehicle-grid">
+
+                    {% for vehicle in compatible_vehicles %}
+
+                        <div class="compatible-vehicle">
+                            <span>🚗</span>
+
+                            <div>
+                                <strong>
+                                    {{ vehicle[2] }}
+                                    {{ vehicle[0] }}
+                                    {{ vehicle[1] }}
+                                </strong>
+
+                                <p>{{ vehicle[3] }}</p>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p class="no-fitment">
+                    No vehicle compatibility information is currently available.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+</html>

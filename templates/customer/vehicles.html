@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Vehicles | RoadReady</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vehicles.css') }}">
+</head>
+
+<body class="vehicles-page">
+
+    <main class="vehicles-container">
+
+        <header class="vehicles-header">
+            <div>
+                <p class="eyebrow">YOUR GARAGE</p>
+                <h1>My Vehicles</h1>
+                <p class="page-description">
+                    Manage your vehicles and find parts that fit them.
+                </p>
+            </div>
+
+            <a href="{{ url_for('customer.dashboard') }}" class="back-link">
+                ← Back to Dashboard
+            </a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="vehicle-form-card">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">ADD A VEHICLE</p>
+                    <h2>Add to Your Garage</h2>
+                </div>
+                <span class="garage-icon">＋</span>
+            </div>
+
+            <form method="POST" action="{{ url_for('vehicles.my_vehicles') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label for="model_id">Select Your Vehicle</label>
+
+                    <select id="model_id" name="model_id" required>
+                        <option value="">Choose a vehicle</option>
+
+                        {% for vehicle in vehicle_models %}
+                            <option value="{{ vehicle[0] }}">
+                                {{ vehicle[3] }} {{ vehicle[1] }} {{ vehicle[2] }}
+                                — {{ vehicle[4] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nickname">Vehicle Nickname</label>
+                        <input
+                            type="text"
+                            id="nickname"
+                            name="nickname"
+                            maxlength="30"
+                            placeholder="Example: My daily driver"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vin">VIN (Optional)</label>
+                        <input
+                            type="text"
+                            id="vin"
+                            name="vin"
+                            maxlength="17"
+                            minlength="17"
+                            placeholder="17-character VIN"
+                        >
+                    </div>
+                </div>
+
+                <button type="submit" class="add-vehicle-button">
+                    + Add Vehicle
+                </button>
+            </form>
+        </section>
+
+        <section class="garage-section">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">SAVED VEHICLES</p>
+                    <h2>Your Garage</h2>
+                </div>
+
+                <span class="vehicle-count">
+                    {{ customer_vehicles|length }}
+                    vehicle{% if customer_vehicles|length != 1 %}s{% endif %}
+                </span>
+            </div>
+
+            {% if customer_vehicles %}
+                <div class="vehicle-grid">
+                    {% for vehicle in customer_vehicles %}
+                        <article class="vehicle-card">
+                            <div class="vehicle-card-top">
+                                <span class="vehicle-icon">🚗</span>
+                                <span class="vehicle-year">{{ vehicle[5] }}</span>
+                            </div>
+
+                            <h3>{{ vehicle[3] }} {{ vehicle[4] }}</h3>
+
+                            <p class="vehicle-engine">{{ vehicle[6] }}</p>
+
+                            {% if vehicle[2] %}
+                                <p class="vehicle-nickname">
+                                    {{ vehicle[2] }}
+                                </p>
+                            {% endif %}
+
+                            {% if vehicle[1] %}
+                                <p class="vehicle-vin">
+                                    VIN: {{ vehicle[1].strip() }}
+                                </p>
+                            {% else %}
+                                <p class="vehicle-vin">VIN not provided</p>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-garage">
+                    <span>🚘</span>
+                    <h3>Your garage is empty</h3>
+                    <p>Add your first vehicle to get started.</p>
+                </div>
+            {% endif %}
+        </section>
+
+    </main>
+
+</body>
+</html>
