@@ -1,196 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RoadReady — Store Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/employee_dashboard.css') }}" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Employee Dashboard | RoadReady</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
+
 <body>
-  <div class="dashboard-layout">
-    <aside class="sidebar">
-      <div class="brand-logo">
-        <span class="brand-icon">R</span>
-        <span>RoadReady</span>
-      </div>
 
-      <div class="sidebar-section">
-        <span class="sidebar-label">STORE OPERATIONS</span>
-        <a class="nav-link active" href="{{ url_for('employee.dashboard', store_id=selected_store_id) }}">
-          <span>⊞</span> Dashboard
-        </a>
-        <a class="nav-link" href="/employee/orders">
-          <span>📦</span> Orders &amp; POs
-        </a>
-        <a class="nav-link" href="/employee/inventory">
-          <span>🧰</span> Inventory
-        </a>
-        <a class="nav-link" href="/employee/deliveries">
-          <span>🚚</span> Deliveries
-        </a>
-      </div>
+    <div class="dashboard-layout">
 
-      <div class="sidebar-section">
-        <span class="sidebar-label">MANAGEMENT</span>
-        <a class="nav-link" href="/employee/staff">
-          <span>👥</span> Employees &amp; Shifts
-        </a>
-        <a class="nav-link" href="/employee/reports">
-          <span>📊</span> Reports
-        </a>
-      </div>
+        <!-- Sidebar -->
+        <aside class="sidebar">
 
-      <div class="sidebar-bottom">
-        <div class="sidebar-user">
-          <div class="user-avatar">EM</div>
-          <div class="user-details">
-            <strong>{{ session.get("username") or "Employee" }}</strong>
-            <span>{{ session.get("access_role") or "STAFF" }}</span>
-          </div>
-        </div>
-        <form method="POST" action="{{ url_for('employee_auth.logout') }}">
-          <button type="submit" class="logout-button">Sign Out</button>
-        </form>
-      </div>
-    </aside>
+            <a href="{{ url_for('employee.dashboard') }}"
+               class="brand-logo">
+                <span class="brand-icon">R</span>
+                <span>RoadReady</span>
+            </a>
 
-    <main class="main-content">
-      <header class="topbar">
-        <div>
-          <div class="breadcrumb">STORE MODE / DASHBOARD</div>
-          <h2>Store Operations</h2>
-        </div>
-        <div class="topbar-user">
-          <form method="GET" action="{{ url_for('employee.dashboard') }}">
-            <select name="store_id" class="store-select" onchange="this.form.submit()">
-              {% for s in stores %}
-                <option value="{{ s[0] }}" {% if s[0] == selected_store_id %}selected{% endif %}>
-                  {{ s[1] }} ({{ s[2] }}, {{ s[3] }})
-                </option>
-              {% endfor %}
-            </select>
-          </form>
-        </div>
-      </header>
+            <div class="sidebar-section">
+                <span class="sidebar-label">STORE OPERATIONS</span>
 
-      <section class="welcome-banner">
-        <div>
-          <div class="eyebrow">ROADREADY STORE PORTAL</div>
-          <h1>Welcome back, {{ session.get("username") or "Team Member" }}</h1>
-          <p>
-            Manage branch inventory, process customer orders and returns, create supplier purchase orders, and track store deliveries[cite: 1, 19, 20].
-          </p>
-          <a class="primary-button" href="/employee/inventory">Open Inventory →</a>
-        </div>
-        <div class="banner-decoration"><span>R</span></div>
-      </section>
+                <a href="{{ url_for('employee.dashboard') }}"
+                   class="nav-link active">
+                    <span>⌂</span> Dashboard
+                </a>
 
-      <section class="kpi-grid">
-        <div class="kpi-card">
-          <span>TODAY'S REVENUE</span>
-          <div class="kpi-value">${{ "%.2f"|format(today_revenue) }}</div>
-          <span>{{ today_orders }} orders today</span>
-        </div>
-        <div class="kpi-card">
-          <span>OPEN ORDERS</span>
-          <div class="kpi-value">{{ open_orders }}</div>
-          <span>Active fulfillment queue</span>
-        </div>
-        <div class="kpi-card">
-          <span>PENDING POs</span>
-          <div class="kpi-value">{{ pending_pos }}</div>
-          <span>Awaiting delivery</span>
-        </div>
-        <div class="kpi-card">
-          <span>LOW STOCK</span>
-          <div class="kpi-value">{{ low_stock_items|length }}</div>
-          <span>At or below reorder level</span>
-        </div>
-      </section>
+                <a href="/employee/orders" class="nav-link">
+                    <span>▤</span> Orders &amp; POs
+                </a>
 
-      <section class="dashboard-section">
-        <div class="section-heading">
-          <div>
-            <h2>Quick Access</h2>
-            <p>Jump straight into daily store workflows</p>
-          </div>
-        </div>
+                <a href="/employee/inventory" class="nav-link">
+                    <span>▣</span> Inventory
+                </a>
 
-        <div class="quick-access-grid">
-          <a class="action-card" href="/employee/orders">
-            <div class="action-icon blue">📦</div>
-            <h3>Order Management</h3>
-            <p>Order new parts, reorder stock, stop POs, and process returns[cite: 1, 19].</p>
-            <span class="card-arrow">→</span>
-          </a>
+                <a href="/employee/deliveries" class="nav-link">
+                    <span>🚚</span> Deliveries
+                </a>
+            </div>
 
-          <a class="action-card" href="/employee/inventory">
-            <div class="action-icon purple">🧰</div>
-            <h3>Inventory &amp; Parts</h3>
-            <p>Update stock counts, bin locations, and part/SKU records[cite: 1, 19].</p>
-            <span class="card-arrow">→</span>
-          </a>
+            <div class="sidebar-section">
+                <span class="sidebar-label">MANAGEMENT</span>
 
-          <a class="action-card" href="/employee/deliveries">
-            <div class="action-icon green">🚚</div>
-            <h3>Delivery Tracking</h3>
-            <p>Review order/delivery dates, payment types, drivers, and cancellations[cite: 1, 20].</p>
-            <span class="card-arrow">→</span>
-          </a>
+                <a href="/employee/staff" class="nav-link">
+                    <span>◉</span> Employees
+                </a>
 
-          <a class="action-card" href="/employee/staff">
-            <div class="action-icon orange">📊</div>
-            <h3>Staff &amp; Reports</h3>
-            <p>Manage employees, shifts, sales summaries, and low-stock alerts[cite: 1, 18, 19, 20].</p>
-            <span class="card-arrow">→</span>
-          </a>
-        </div>
-      </section>
+                <a href="/employee/reports" class="nav-link">
+                    <span>📊</span> Reports
+                </a>
+            </div>
 
-      <section class="dashboard-section">
-        <div class="section-heading">
-          <div>
-            <h2>Low-Stock Alerts</h2>
-            <p>Items needing reorder attention at this store[cite: 1, 19]</p>
-          </div>
-        </div>
+            <div class="sidebar-bottom">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
 
-        <div class="table-card">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Part #</th>
-                <th>Part Name</th>
-                <th>Condition</th>
-                <th>On Hand</th>
-                <th>Reorder Level</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in low_stock_items %}
-                <tr>
-                  <td>{{ item[1] }}</td>
-                  <td>{{ item[2] }}</td>
-                  <td>{{ item[3] }}</td>
-                  <td>{{ item[4] }}</td>
-                  <td>{{ item[5] }}</td>
-                  <td><span class="badge-warn">Reorder</span></td>
-                </tr>
-              {% else %}
-                <tr>
-                  <td colspan="6" style="color: var(--muted);">No low-stock items for this store.</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                    <div class="user-details">
+                        <strong>
+                            {{ session.get("username") or "Employee" }}
+                        </strong>
+                        <span>{{ session.get("access_role") or "STAFF" }}</span>
+                    </div>
+                </div>
 
-      <footer class="dashboard-footer">
-        RoadReady Auto Parts — Store Mode Portal[cite: 1, 13]
-      </footer>
-    </main>
-  </div>
+                <form method="POST"
+                      action="{{ url_for('employee_auth.logout') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button type="submit" class="logout-button">
+                        Sign Out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+
+        <!-- Main content -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <span class="breadcrumb">STORE PORTAL</span>
+                    <h2>Dashboard</h2>
+                </div>
+
+                <div class="topbar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+                </div>
+            </header>
+
+
+            <section class="welcome-banner">
+
+                <div>
+                    <span class="eyebrow">ROADREADY STORE OPERATIONS</span>
+
+                    <h1>
+                        Welcome back, {{ session.get("username") or "Team Member" }}!
+                    </h1>
+
+                    <p>
+                        Manage branch inventory, process orders and returns,
+                        track deliveries, and run store reports.
+                    </p>
+
+                    <a href="/employee/inventory" class="primary-button">
+                        Manage Inventory →
+                    </a>
+                </div>
+
+                <div class="banner-decoration">
+                    <span>R</span>
+                </div>
+
+            </section>
+
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Quick Access</h2>
+                        <p>Everything you need for daily store operations.</p>
+                    </div>
+                </div>
+
+
+                <div class="quick-access-grid">
+
+                    <a href="/employee/orders" class="action-card">
+                        <div class="action-icon blue">▤</div>
+                        <h3>Order Management</h3>
+                        <p>Order parts, reorder stock, stop POs, and handle returns.</p>
+                        <span class="card-arrow">→</span>
+                    </a>
+
+                    <a href="/employee/inventory" class="action-card">
+                        <div class="action-icon purple">▣</div>
+                        <h3>Inventory &amp; Parts</h3>
+                        <p>Update stock counts, bin locations, and part records.</p>
+                        <span class="card-arrow">→</span>
+                    </a>
+
+                    <a href="/employee/deliveries" class="action-card">
+                        <div class="action-icon green">🚚</div>
+                        <h3>Delivery Tracking</h3>
+                        <p>Track order/delivery dates, payments, and cancellations.</p>
+                        <span class="card-arrow">→</span>
+                    </a>
+
+                    <a href="/employee/staff" class="action-card">
+                        <div class="action-icon orange">◉</div>
+                        <h3>Employees &amp; Reports</h3>
+                        <p>Manage staff records, roles, and store reports.</p>
+                        <span class="card-arrow">→</span>
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Store Overview</h2>
+                        <p>Current branch snapshot and low-stock watch.</p>
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-icon">✦</div>
+
+                    <div>
+                        <h3>Today's Store Snapshot</h3>
+                        <p>
+                            Today's Revenue: ${{ "%.2f"|format(today_revenue or 0) }} ·
+                            Open Orders: {{ open_orders or 0 }} ·
+                            Pending POs: {{ pending_pos or 0 }} ·
+                            Low-Stock Items: {{ (low_stock_items or [])|length }}
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+
+            <footer class="dashboard-footer">
+                © 2026 RoadReady. All rights reserved.
+            </footer>
+
+        </main>
+
+    </div>
+
 </body>
 </html>

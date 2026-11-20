@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Inventory &amp; Parts | RoadReady</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/parts.css') }}">
+    <style>
+        .panel-card {
+            background: var(--navy-light);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 22px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            align-items: end;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            background: var(--navy);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            background: var(--navy-light);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+        }
+
+        .inv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .inv-table th,
+        .inv-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .inv-table th {
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .mini-input {
+            width: 75px;
+            padding: 6px 8px;
+            font-size: 12px;
+            background: var(--navy);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .mini-btn {
+            background: var(--blue);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            padding: 7px 11px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .pill-low {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(249, 115, 22, 0.16);
+            color: #FDBA74;
+        }
+
+        .pill-ok {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(16, 185, 129, 0.16);
+            color: #6EE7B7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <a href="{{ url_for('employee.dashboard') }}"
+               class="brand-logo">
+                <span class="brand-icon">R</span>
+                <span>RoadReady</span>
+            </a>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">STORE OPERATIONS</span>
+
+                <a href="{{ url_for('employee.dashboard') }}"
+                   class="nav-link">
+                    <span>⌂</span> Dashboard
+                </a>
+
+                <a href="/employee/orders" class="nav-link">
+                    <span>▤</span> Orders &amp; POs
+                </a>
+
+                <a href="{{ url_for('employee_inventory.browse_inventory') }}"
+                   class="nav-link active">
+                    <span>▣</span> Inventory
+                </a>
+
+                <a href="/employee/deliveries" class="nav-link">
+                    <span>🚚</span> Deliveries
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">MANAGEMENT</span>
+
+                <a href="/employee/staff" class="nav-link">
+                    <span>◉</span> Employees
+                </a>
+
+                <a href="/employee/reports" class="nav-link">
+                    <span>📊</span> Reports
+                </a>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+
+                    <div class="user-details">
+                        <strong>
+                            {{ session.get("username") or "Employee" }}
+                        </strong>
+                        <span>{{ session.get("access_role") or "STAFF" }}</span>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('employee_auth.logout') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button type="submit" class="logout-button">
+                        Sign Out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+
+        <!-- Main content -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <span class="breadcrumb">STORE PORTAL / INVENTORY</span>
+                    <h2>Inventory &amp; Parts</h2>
+                </div>
+
+                <div class="topbar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+                </div>
+            </header>
+
+
+            <section class="welcome-banner">
+
+                <div>
+                    <span class="eyebrow">STORE STOCK MANAGEMENT</span>
+
+                    <h1>
+                        Branch Inventory Catalog
+                    </h1>
+
+                    <p>
+                        Filter stock across stores, update bin locations and
+                        reorder levels, and manage part SKUs.
+                    </p>
+
+                    <a href="#stock-table" class="primary-button">
+                        View Stock List →
+                    </a>
+                </div>
+
+                <div class="banner-decoration">
+                    <span>R</span>
+                </div>
+
+            </section>
+
+
+            {% if status_message or error_message %}
+            <section class="dashboard-section">
+
+                <div class="info-panel">
+                    <div class="info-icon">✦</div>
+
+                    <div>
+                        <h3>{{ "Update Notice" if status_message else "Attention Needed" }}</h3>
+                        <p>{{ status_message or error_message }}</p>
+                    </div>
+                </div>
+
+            </section>
+            {% endif %}
+
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Filter Inventory</h2>
+                        <p>Search by store, part number, name, category, or vehicle fitment.</p>
+                    </div>
+                </div>
+
+                <form method="GET"
+                      action="{{ url_for('employee_inventory.browse_inventory') }}"
+                      class="panel-card">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label for="store">Store</label>
+                            <select id="store" name="store">
+                                {% for s in stores %}
+                                    <option value="{{ s[0] }}"
+                                            {% if s[0] == valid_store_id %}selected{% endif %}>
+                                        {{ s[1] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="q">Search</label>
+                            <input id="q"
+                                   type="text"
+                                   name="q"
+                                   value="{{ search_query }}"
+                                   placeholder="Part #, name, brand, bin">
+                        </div>
+
+                        <div class="field">
+                            <label for="category">Category</label>
+                            <select id="category" name="category">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat[0] }}"
+                                            {% if selected_category == cat[0]|string %}selected{% endif %}>
+                                        {{ cat[1] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="vehicle">Vehicle Fitment</label>
+                            <select id="vehicle" name="vehicle">
+                                <option value="">All Vehicles</option>
+                                {% for v in vehicles %}
+                                    <option value="{{ v[0] }}"
+                                            {% if selected_vehicle == v[0]|string %}selected{% endif %}>
+                                        {{ v[3] }} {{ v[1] }} {{ v[2] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="low_only">Stock Status</label>
+                            <select id="low_only" name="low_only">
+                                <option value="0" {% if not low_only %}selected{% endif %}>
+                                    All Stock
+                                </option>
+                                <option value="1" {% if low_only %}selected{% endif %}>
+                                    Low Stock Only
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <button type="submit" class="primary-button">
+                                Apply Filters
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            {% if session.get("manager_logged_in") %}
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Add or Update Part &amp; SKU</h2>
+                        <p>Create or update catalog parts, fitment, pricing, and initial stock.</p>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('employee_inventory.save_part') }}"
+                      class="panel-card">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <input type="hidden"
+                           name="store_id"
+                           value="{{ valid_store_id }}">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label for="part_number">Part Number *</label>
+                            <input id="part_number"
+                                   type="text"
+                                   name="part_number"
+                                   required
+                                   placeholder="e.g. BRK-104">
+                        </div>
+
+                        <div class="field">
+                            <label for="part_name">Part Name *</label>
+                            <input id="part_name"
+                                   type="text"
+                                   name="part_name"
+                                   required
+                                   placeholder="e.g. Front Brake Rotor">
+                        </div>
+
+                        <div class="field">
+                            <label for="brand">Brand</label>
+                            <input id="brand"
+                                   type="text"
+                                   name="brand"
+                                   placeholder="e.g. Bosch">
+                        </div>
+
+                        <div class="field">
+                            <label for="category_id">Category</label>
+                            <select id="category_id" name="category_id">
+                                <option value="">-- Select --</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="model_id">Vehicle Fitment</label>
+                            <select id="model_id" name="model_id">
+                                <option value="">-- Optional --</option>
+                                {% for v in vehicles %}
+                                    <option value="{{ v[0] }}">
+                                        {{ v[3] }} {{ v[1] }} {{ v[2] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="condition">Condition</label>
+                            <select id="condition" name="condition">
+                                <option value="NEW">NEW</option>
+                                <option value="REMANUFACTURED">REMANUFACTURED</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="unit_price">Unit Price ($)</label>
+                            <input id="unit_price"
+                                   type="number"
+                                   step="0.01"
+                                   min="0"
+                                   name="unit_price"
+                                   value="0.00">
+                        </div>
+
+                        <div class="field">
+                            <label for="core_charge">Core Charge ($)</label>
+                            <input id="core_charge"
+                                   type="number"
+                                   step="0.01"
+                                   min="0"
+                                   name="core_charge"
+                                   value="0.00">
+                        </div>
+
+                        <div class="field">
+                            <label for="qty_on_hand">Qty On Hand</label>
+                            <input id="qty_on_hand"
+                                   type="number"
+                                   min="0"
+                                   name="qty_on_hand"
+                                   value="0">
+                        </div>
+
+                        <div class="field">
+                            <label for="reorder_level">Reorder Level</label>
+                            <input id="reorder_level"
+                                   type="number"
+                                   min="0"
+                                   name="reorder_level"
+                                   value="5">
+                        </div>
+
+                        <div class="field">
+                            <label for="bin_location">Bin Location</label>
+                            <input id="bin_location"
+                                   type="text"
+                                   name="bin_location"
+                                   placeholder="e.g. A3-02">
+                        </div>
+
+                        <div class="field">
+                            <label for="description">Description</label>
+                            <input id="description"
+                                   type="text"
+                                   name="description"
+                                   placeholder="Optional">
+                        </div>
+
+                        <div class="field">
+                            <button type="submit" class="primary-button">
+                                Save Part &amp; SKU
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+            {% endif %}
+
+
+            <section class="dashboard-section" id="stock-table">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Store Stock &amp; Bin Locations</h2>
+                        <p>Adjust quantity on hand, reorder threshold, and bin location.</p>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="inv-table">
+                        <thead>
+                            <tr>
+                                <th>Part #</th>
+                                <th>Part Name</th>
+                                <th>Brand</th>
+                                <th>Category</th>
+                                <th>Condition</th>
+                                <th>Price</th>
+                                <th>On Hand</th>
+                                <th>Reorder At</th>
+                                <th>Bin</th>
+                                <th>Status</th>
+                                <th>Save</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in products %}
+                                <tr>
+                                    <td><strong>{{ p[2] }}</strong></td>
+                                    <td>{{ p[3] }}</td>
+                                    <td>{{ p[4] or "—" }}</td>
+                                    <td>{{ p[5] or "—" }}</td>
+                                    <td>{{ p[6] }}</td>
+                                    <td>${{ "%.2f"|format(p[7] or 0) }}</td>
+                                    <form method="POST"
+                                          action="{{ url_for('employee_inventory.update_stock') }}">
+                                        <td>
+                                            <input type="hidden"
+                                                   name="csrf_token"
+                                                   value="{{ csrf_token() }}">
+                                            <input type="hidden"
+                                                   name="store_id"
+                                                   value="{{ valid_store_id }}">
+                                            <input type="hidden"
+                                                   name="sku_id"
+                                                   value="{{ p[0] }}">
+                                            <input class="mini-input"
+                                                   type="number"
+                                                   min="0"
+                                                   name="qty_on_hand"
+                                                   value="{{ p[9] }}">
+                                        </td>
+                                        <td>
+                                            <input class="mini-input"
+                                                   type="number"
+                                                   min="0"
+                                                   name="reorder_level"
+                                                   value="{{ p[10] }}">
+                                        </td>
+                                        <td>
+                                            <input class="mini-input"
+                                                   type="text"
+                                                   name="bin_location"
+                                                   value="{{ p[11] }}">
+                                        </td>
+                                        <td>
+                                            {% if p[9] <= p[10] %}
+                                                <span class="pill-low">Low Stock</span>
+                                            {% else %}
+                                                <span class="pill-ok">In Stock</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button type="submit" class="mini-btn">
+                                                Save
+                                            </button>
+                                        </td>
+                                    </form>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="11" style="color: var(--muted);">
+                                        No matching inventory rows found.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+
+            <footer class="dashboard-footer">
+                © 2026 RoadReady. All rights reserved.
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,416 @@
+d<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Deliveries | RoadReady</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/deliveries.css') }}">
+</head>
+
+<body>
+
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <a href="{{ url_for('employee.dashboard') }}"
+               class="brand-logo">
+                <span class="brand-icon">R</span>
+                <span>RoadReady</span>
+            </a>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">STORE OPERATIONS</span>
+
+                <a href="{{ url_for('employee.dashboard') }}"
+                   class="nav-link">
+                    <span>⌂</span> Dashboard
+                </a>
+
+                <a href="{{ url_for('employee_orders.browse_orders') }}"
+                   class="nav-link">
+                    <span>▤</span> Orders &amp; POs
+                </a>
+
+                <a href="{{ url_for('employee_inventory.browse_inventory') }}"
+                   class="nav-link">
+                    <span>▣</span> Inventory
+                </a>
+
+                <a href="{{ url_for('employee_deliveries.browse_deliveries') }}"
+                   class="nav-link active">
+                    <span>🚚</span> Deliveries
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">MANAGEMENT</span>
+
+                <a href="/employee/staff" class="nav-link">
+                    <span>◉</span> Employees
+                </a>
+
+                <a href="/employee/reports" class="nav-link">
+                    <span>📊</span> Reports
+                </a>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+
+                    <div class="user-details">
+                        <strong>
+                            {{ session.get("username") or "Employee" }}
+                        </strong>
+                        <span>{{ session.get("access_role") or "STAFF" }}</span>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('employee_auth.logout') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button type="submit" class="logout-button">
+                        Sign Out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+
+        <!-- Main content -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <span class="breadcrumb">STORE PORTAL / DELIVERIES</span>
+                    <h2>Delivery Dispatch &amp; Tracking</h2>
+                </div>
+
+                <div class="topbar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+                </div>
+            </header>
+
+
+            <section class="welcome-banner">
+
+                <div>
+                    <span class="eyebrow">STORE DISPATCH</span>
+
+                    <h1>
+                        Local Deliveries &amp; Drivers
+                    </h1>
+
+                    <p>
+                        Assign drivers to customer orders, track active shipments,
+                        and mark deliveries completed.
+                    </p>
+
+                    <a href="#delivery-list" class="primary-button">
+                        View Active Deliveries →
+                    </a>
+                </div>
+
+                <div class="banner-decoration">
+                    <span>R</span>
+                </div>
+
+            </section>
+
+
+            {% if status_message or error_message %}
+            <section class="dashboard-section">
+
+                <div class="info-panel">
+                    <div class="info-icon">✦</div>
+
+                    <div>
+                        <h3>{{ "Update Notice" if status_message else "Attention Needed" }}</h3>
+                        <p>{{ status_message or error_message }}</p>
+                    </div>
+                </div>
+
+            </section>
+            {% endif %}
+
+
+            <!-- Filter Deliveries -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Filter Deliveries</h2>
+                        <p>Filter by branch store, delivery status, order ID, tracking number, or customer.</p>
+                    </div>
+                </div>
+
+                <form method="GET"
+                      action="{{ url_for('employee_deliveries.browse_deliveries') }}"
+                      class="deliveries-card">
+
+                    <div class="deliveries-form-grid">
+
+                        <div class="deliveries-field">
+                            <label for="store">Store</label>
+                            <select id="store" name="store">
+                                {% for s in stores %}
+                                    <option value="{{ s[0] }}"
+                                            {% if s[0] == valid_store_id %}selected{% endif %}>
+                                        {{ s[1] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="deliveries-field">
+                            <label for="q">Search</label>
+                            <input id="q"
+                                   type="text"
+                                   name="q"
+                                   value="{{ search_query }}"
+                                   placeholder="Delivery #, Order #, tracking, customer">
+                        </div>
+
+                        <div class="deliveries-field">
+                            <label for="status">Delivery Status</label>
+                            <select id="status" name="status">
+                                <option value="">All Statuses</option>
+                                {% for st in ["PENDING", "ASSIGNED", "OUT_FOR_DELIVERY", "DELIVERED", "FAILED"] %}
+                                    <option value="{{ st }}"
+                                            {% if selected_status == st %}selected{% endif %}>
+                                        {{ st }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="deliveries-field">
+                            <button type="submit" class="primary-action-btn">
+                                Apply Filters
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- Schedule Delivery -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Schedule New Delivery</h2>
+                        <p>Create a dispatch entry and assign a driver to an open store order.</p>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('employee_deliveries.schedule_delivery') }}"
+                      class="deliveries-card">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <input type="hidden"
+                           name="store_id"
+                           value="{{ valid_store_id }}">
+
+                    <div class="deliveries-form-grid">
+
+                        <div class="deliveries-field">
+                            <label for="order_id">Customer Order *</label>
+                            <select id="order_id" name="order_id" required>
+                                <option value="">-- Select Open Order --</option>
+                                {% for ord in eligible_orders %}
+                                    <option value="{{ ord[0] }}">
+                                        Order #{{ ord[0] }} - {{ ord[1] }} ({{ ord[2] }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="deliveries-field">
+                            <label for="driver_employee_id">Assign Driver</label>
+                            <select id="driver_employee_id" name="driver_employee_id">
+                                <option value="">-- Unassigned --</option>
+                                {% for drv in drivers %}
+                                    <option value="{{ drv[0] }}">{{ drv[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="deliveries-field">
+                            <label for="tracking_number">Tracking / Route Code</label>
+                            <input id="tracking_number"
+                                   type="text"
+                                   name="tracking_number"
+                                   placeholder="e.g. RR-TRK-402">
+                        </div>
+
+                        <div class="deliveries-field">
+                            <label for="scheduled_date">Scheduled Date</label>
+                            <input id="scheduled_date"
+                                   type="date"
+                                   name="scheduled_date">
+                        </div>
+
+                        <div class="deliveries-field">
+                            <button type="submit" class="primary-action-btn">
+                                Schedule Delivery
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- Active Deliveries Table -->
+            <section class="dashboard-section" id="delivery-list">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Store Deliveries</h2>
+                        <p>Reassign drivers or update delivery progress in real time.</p>
+                    </div>
+                </div>
+
+                <div class="deliveries-card">
+                    <div class="deliveries-section-heading">
+                        <h2>Active &amp; Recent Deliveries</h2>
+                        <span>{{ deliveries|length }} shown</span>
+                    </div>
+
+                    <div class="deliveries-table-wrap">
+                        <table class="deliveries-table">
+                            <thead>
+                                <tr>
+                                    <th>Delivery #</th>
+                                    <th>Order #</th>
+                                    <th>Customer</th>
+                                    <th>Driver</th>
+                                    <th>Tracking</th>
+                                    <th>Scheduled</th>
+                                    <th>Status</th>
+                                    <th>Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for d in deliveries %}
+                                    <tr>
+                                        <td><strong>#{{ d[0] }}</strong></td>
+                                        <td>#{{ d[1] }}</td>
+                                        <td>{{ d[2] }}</td>
+                                        <td>{{ d[3] }}</td>
+                                        <td>{{ d[5] or "—" }}</td>
+                                        <td>{{ d[6] or "—" }}</td>
+                                        <td>
+                                            <span class="status-badge {% if d[8] == 'DELIVERED' %}delivered{% elif d[8] == 'FAILED' %}failed{% endif %}">
+                                                {{ d[8] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form method="POST"
+                                                  action="{{ url_for('employee_deliveries.update_delivery') }}"
+                                                  class="inline-action-form">
+                                                <input type="hidden"
+                                                       name="csrf_token"
+                                                       value="{{ csrf_token() }}">
+                                                <input type="hidden"
+                                                       name="store_id"
+                                                       value="{{ valid_store_id }}">
+                                                <input type="hidden"
+                                                       name="delivery_id"
+                                                       value="{{ d[0] }}">
+
+                                                <select name="driver_employee_id">
+                                                    <option value="">Unassigned</option>
+                                                    {% for drv in drivers %}
+                                                        <option value="{{ drv[0] }}"
+                                                                {% if drv[0] == d[4] %}selected{% endif %}>
+                                                            {{ drv[1] }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+
+                                                <select name="delivery_status">
+                                                    {% for st in ["PENDING", "ASSIGNED", "OUT_FOR_DELIVERY", "DELIVERED", "FAILED"] %}
+                                                        <option value="{{ st }}"
+                                                                {% if d[8] == st %}selected{% endif %}>
+                                                            {{ st }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+
+                                                <button type="submit"
+                                                        class="secondary-action-btn">
+                                                    Save
+                                                </button>
+                                            </form>
+
+                                            {% if d[8] != "DELIVERED" and session.get("manager_logged_in") %}
+                                                <form method="POST"
+                                                      action="{{ url_for('employee_deliveries.cancel_delivery') }}"
+                                                      class="inline-action-form">
+                                                    <input type="hidden"
+                                                           name="csrf_token"
+                                                           value="{{ csrf_token() }}">
+                                                    <input type="hidden"
+                                                           name="store_id"
+                                                           value="{{ valid_store_id }}">
+                                                    <input type="hidden"
+                                                           name="delivery_id"
+                                                           value="{{ d[0] }}">
+                                                    <button type="submit"
+                                                            class="stop-action-btn">
+                                                        Cancel
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" style="color: #94a3b8;">
+                                            No deliveries found for this store filter.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <footer class="dashboard-footer">
+                © 2026 RoadReady. All rights reserved.
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+</html>
