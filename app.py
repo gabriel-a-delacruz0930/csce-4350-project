@@ -46,13 +46,13 @@ def create_app():
     app.register_blueprint(product_details)
     app.register_blueprint(cart)
     
-    app.register_blueprint(employee_auth)
-    app.register_blueprint(employee)
-    app.register_blueprint(employee_orders)
-    app.register_blueprint(employee_inventory)
-    app.register_blueprint(employee_deliveries)
-    app.register_blueprint(employee_staff)
-    app.register_blueprint(employee_reports)
+    app.register_blueprint(employee_auth, url_prefix="/employee")
+    app.register_blueprint(employee, url_prefix="/employee")
+    app.register_blueprint(employee_orders, url_prefix="/employee")
+    app.register_blueprint(employee_inventory, url_prefix="/employee")
+    app.register_blueprint(employee_deliveries, url_prefix="/employee")
+    app.register_blueprint(employee_staff, url_prefix="/employee")
+    app.register_blueprint(employee_reports, url_prefix="/employee")
     @app.route("/test-db")
     def test_db():
         try:

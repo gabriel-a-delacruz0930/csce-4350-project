@@ -146,8 +146,8 @@ def browse_deliveries():
 @employee_deliveries.route("/employee/deliveries/create", methods=["POST"])
 @employee_login_required
 def create_delivery():
-    order_id = request.form.get("order_id", type=int).strip()
-    driver_id = request.form.get("driver_id", type=int).strip()
+    order_id = request.form.get("order_id", type=int)
+    driver_id = request.form.get("driver_id", type=int)
     store_id = request.form.get("store_id", type=int) or session.get("store_id")
     tracking_number = request.form.get("tracking_number", "").strip()
     est_delivery_date = request.form.get("est_delivery_date", "").strip() or None
@@ -214,6 +214,8 @@ def create_delivery():
                     (order_id,),
                 )
 
+            conn.commit()
+
         flash("Delivery created successfully.", "success")
         return redirect_to_deliveries(target_store)
     except Exception:
@@ -221,11 +223,12 @@ def create_delivery():
         flash("An error occurred while creating the delivery.", "error")
         return redirect_to_deliveries(store_id)
 
+
 @employee_deliveries.route("/employee/deliveries/update", methods=["POST"])
-@employee_login_required    
+@employee_login_required
 def update_delivery():
-    delivery_id = request.form.get("delivery_id", type=int).strip()
-    new_status = request.form.get("new_status", "").strip()
+    delivery_id = request.form.get("delivery_id", type=int)
+    new_status = request.form.get("new_status", "").strip().upper()
 
     if not all([delivery_id, new_status]):
         flash("Delivery ID and new status are required.", "error")
@@ -249,11 +252,12 @@ def update_delivery():
 
     return redirect_to_deliveries(session.get("store_id"))
 
+
 @employee_deliveries.route("/employee/deliveries/cancel", methods=["POST"])
 @manager_login_required
 def cancel_delivery():
-    store_id = request.form.get("store_id", type=int).strip()
-    delivery_id = request.form.get("delivery_id", type=int).strip()
+    store_id = request.form.get("store_id", type=int) or session.get("store_id")
+    delivery_id = request.form.get("delivery_id", type=int)
 
     if not delivery_id:
         flash("Delivery ID is required.", "error")
@@ -269,6 +273,7 @@ def cancel_delivery():
                 """,
                 (delivery_id,),
             )
+            conn.commit()
         flash(f"Delivery #{delivery_id} cancelled.", "success")
         return redirect_to_deliveries(store_id)
     except Exception:
