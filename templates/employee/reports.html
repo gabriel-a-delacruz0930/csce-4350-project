@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports | RoadReady</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reports.css') }}">
+    
+</head>
+
+<body>
+
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <a href="{{ url_for('employee.dashboard') }}"
+               class="brand-logo">
+                <span class="brand-icon">R</span>
+                <span>RoadReady</span>
+            </a>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">STORE OPERATIONS</span>
+
+                <a href="{{ url_for('employee.dashboard') }}"
+                   class="nav-link">
+                    <span>⌂</span> Dashboard
+                </a>
+
+                <a href="{{ url_for('employee_orders.browse_orders') }}"
+                   class="nav-link">
+                    <span>▤</span> Orders &amp; POs
+                </a>
+
+                <a href="{{ url_for('employee_inventory.browse_inventory') }}"
+                   class="nav-link">
+                    <span>▣</span> Inventory
+                </a>
+
+                <a href="/employee/deliveries" class="nav-link">
+                    <span>🚚</span> Deliveries
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">MANAGEMENT</span>
+
+                <a href="{{ url_for('employee_staff.browse_staff') }}"
+                   class="nav-link">
+                    <span>◉</span> Employees
+                </a>
+
+                <a href="{{ url_for('employee_reports.browse_reports') }}"
+                   class="nav-link active">
+                    <span>📊</span> Reports
+                </a>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+
+                    <div class="user-details">
+                        <strong>
+                            {{ session.get("username") or "Employee" }}
+                        </strong>
+                        <span>{{ session.get("access_role") or "STAFF" }}</span>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('employee_auth.logout') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button type="submit" class="logout-button">
+                        Sign Out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+
+        <!-- Main content -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <span class="breadcrumb">STORE PORTAL / REPORTS</span>
+                    <h2>Branch Sales, Stock &amp; Roster Reports</h2>
+                </div>
+
+                <div class="topbar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+                </div>
+            </header>
+
+
+            <section class="welcome-banner">
+
+                <div>
+                    <span class="eyebrow">OPERATIONAL REPORTING</span>
+
+                    <h1>
+                        Store Performance &amp; Stock Alerts
+                    </h1>
+
+                    <p>
+                        Review daily sales, low-stock reorder alerts, and branch
+                        staffing for the active store.
+                    </p>
+
+                    <a href="#daily-sales" class="primary-button">
+                        View Daily Sales →
+                    </a>
+                </div>
+
+                <div class="banner-decoration">
+                    <span>R</span>
+                </div>
+
+            </section>
+
+
+            {% if status_message or error_message %}
+            <section class="dashboard-section">
+
+                <div class="info-panel">
+                    <div class="info-icon">✦</div>
+
+                    <div>
+                        <h3>{{ "Report Notice" if status_message else "Attention Needed" }}</h3>
+                        <p>{{ status_message or error_message }}</p>
+                    </div>
+                </div>
+
+            </section>
+            {% endif %}
+
+
+            <!-- Filter Reports -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Report Filters</h2>
+                        <p>Filter by branch store or date range.</p>
+                    </div>
+                </div>
+
+                <form method="GET"
+                      action="{{ url_for('employee_reports.browse_reports') }}"
+                      class="reports-card">
+
+                    <div class="reports-form-grid">
+
+                        <div class="reports-field">
+                            <label for="store">Store</label>
+                            <select id="store" name="store">
+                                {% for s in stores %}
+                                    <option value="{{ s[0] }}"
+                                            {% if s[0] == valid_store_id %}selected{% endif %}>
+                                        {{ s[1] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="reports-field">
+                            <label for="start_date">From Date</label>
+                            <input id="start_date"
+                                   type="date"
+                                   name="start_date"
+                                   value="{{ start_date }}">
+                        </div>
+
+                        <div class="reports-field">
+                            <label for="end_date">To Date</label>
+                            <input id="end_date"
+                                   type="date"
+                                   name="end_date"
+                                   value="{{ end_date }}">
+                        </div>
+
+                        <div class="reports-field">
+                            <button type="submit" class="primary-action-btn">
+                                Run Report
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- Summary Tiles -->
+            <section class="reports-summary-grid">
+
+                <div class="summary-tile">
+                    <span class="summary-tile-label">Total Orders</span>
+                    <div class="summary-tile-value">{{ summary.total_orders }}</div>
+                </div>
+
+                <div class="summary-tile">
+                    <span class="summary-tile-label">Gross Revenue</span>
+                    <div class="summary-tile-value">${{ "%.2f"|format(summary.total_revenue) }}</div>
+                </div>
+
+                <div class="summary-tile">
+                    <span class="summary-tile-label">Low Stock SKUs</span>
+                    <div class="summary-tile-value">{{ low_stock|length }}</div>
+                </div>
+
+                <div class="summary-tile">
+                    <span class="summary-tile-label">Active Staff</span>
+                    <div class="summary-tile-value">{{ summary.active_staff }}</div>
+                </div>
+
+            </section>
+
+
+            <!-- Daily Sales -->
+            <section class="dashboard-section" id="daily-sales">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Daily Sales</h2>
+                        <p>Order counts and revenue grouped by store and date.</p>
+                    </div>
+                </div>
+
+                <div class="reports-card">
+                    <div class="reports-section-heading">
+                        <h2>Sales Breakdown</h2>
+                        <span>{{ daily_sales|length }} days</span>
+                    </div>
+
+                    <div class="reports-table-wrap">
+                        <table class="reports-table">
+                            <thead>
+                                <tr>
+                                    <th>Store</th>
+                                    <th>Date</th>
+                                    <th>Orders</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in daily_sales %}
+                                    <tr>
+                                        <td>{{ row[0] }}</td>
+                                        <td><strong>{{ row[1] }}</strong></td>
+                                        <td>{{ row[2] }}</td>
+                                        <td>${{ "%.2f"|format(row[3] or 0) }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" style="color: #94a3b8;">
+                                            No sales data for the selected store or dates.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- Low Stock -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Inventory Reorder Watch</h2>
+                        <p>SKUs at or below their store reorder level.</p>
+                    </div>
+                </div>
+
+                <div class="reports-card">
+                    <div class="reports-section-heading">
+                        <h2>Low Stock Items</h2>
+                        <span>{{ low_stock|length }} items</span>
+                    </div>
+
+                    <div class="reports-table-wrap">
+                        <table class="reports-table">
+                            <thead>
+                                <tr>
+                                    <th>Store</th>
+                                    <th>Part #</th>
+                                    <th>Part Name</th>
+                                    <th>Condition</th>
+                                    <th>On Hand</th>
+                                    <th>Reorder At</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in low_stock %}
+                                    <tr>
+                                        <td>{{ item[0] }}</td>
+                                        <td><strong>{{ item[1] }}</strong></td>
+                                        <td>{{ item[2] }}</td>
+                                        <td>{{ item[3] }}</td>
+                                        <td>{{ item[5] }}</td>
+                                        <td>{{ item[6] }}</td>
+                                        <td>
+                                            <span class="flag-badge low">Reorder Needed</span>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" style="color: #94a3b8;">
+                                            No low-stock items for this store.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- Roster Summary -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Branch Roster</h2>
+                        <p>Employees, departments, and reporting structure for this store.</p>
+                    </div>
+                </div>
+
+                <div class="reports-card">
+                    <div class="reports-section-heading">
+                        <h2>Staff Roster</h2>
+                        <span>{{ roster|length }} staff</span>
+                    </div>
+
+                    <div class="reports-table-wrap">
+                        <table class="reports-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Job Title</th>
+                                    <th>Department</th>
+                                    <th>Store</th>
+                                    <th>Manager</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for emp in roster %}
+                                    <tr>
+                                        <td><strong>{{ emp[1] }}</strong></td>
+                                        <td>{{ emp[2] }}</td>
+                                        <td>{{ emp[3] }}</td>
+                                        <td>{{ emp[4] }}</td>
+                                        <td>{{ emp[5] or "—" }}</td>
+                                        <td>{{ emp[6] }}</td>
+                                        <td>
+                                            {% if emp[7] %}
+                                                <span class="flag-badge ok">Active</span>
+                                            {% else %}
+                                                <span class="flag-badge low">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" style="color: #94a3b8;">
+                                            No roster records for this store.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <footer class="dashboard-footer">
+                © 2026 RoadReady. All rights reserved.
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

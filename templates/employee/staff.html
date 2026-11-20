@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Staff &amp; Shifts | RoadReady</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/staff.css') }}">
+    
+</head>
+
+<body>
+
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <a href="{{ url_for('employee.dashboard') }}"
+               class="brand-logo">
+                <span class="brand-icon">R</span>
+                <span>RoadReady</span>
+            </a>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">STORE OPERATIONS</span>
+
+                <a href="{{ url_for('employee.dashboard') }}"
+                   class="nav-link">
+                    <span>⌂</span> Dashboard
+                </a>
+
+                <a href="{{ url_for('employee_orders.browse_orders') }}"
+                   class="nav-link">
+                    <span>▤</span> Orders &amp; POs
+                </a>
+
+                <a href="{{ url_for('employee_inventory.browse_inventory') }}"
+                   class="nav-link">
+                    <span>▣</span> Inventory
+                </a>
+
+                <a href="/employee/deliveries" class="nav-link">
+                    <span>🚚</span> Deliveries
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">MANAGEMENT</span>
+
+                <a href="{{ url_for('employee_staff.browse_staff') }}"
+                   class="nav-link active">
+                    <span>◉</span> Employees
+                </a>
+
+                <a href="/employee/reports" class="nav-link">
+                    <span>📊</span> Reports
+                </a>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+
+                    <div class="user-details">
+                        <strong>
+                            {{ session.get("username") or "Employee" }}
+                        </strong>
+                        <span>{{ session.get("access_role") or "STAFF" }}</span>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('employee_auth.logout') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button type="submit" class="logout-button">
+                        Sign Out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+
+        <!-- Main content -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <span class="breadcrumb">STORE PORTAL / EMPLOYEES &amp; SHIFTS</span>
+                    <h2>Employee Roster &amp; Shift Scheduling</h2>
+                </div>
+
+                <div class="topbar-user">
+                    <div class="user-avatar">
+                        {{ (session.get("username") or "EM")[:2]|upper }}
+                    </div>
+                </div>
+            </header>
+
+
+            <section class="welcome-banner">
+
+                <div>
+                    <span class="eyebrow">WORKFORCE &amp; SHIFTS</span>
+
+                    <h1>
+                        Store Roster &amp; Shift Coverage
+                    </h1>
+
+                    <p>
+                        View branch employees, schedule shifts, and manage
+                        staff roles for the active store.
+                    </p>
+
+                    <a href="#shift-schedule" class="primary-button">
+                        View Shift Schedule →
+                    </a>
+                </div>
+
+                <div class="banner-decoration">
+                    <span>R</span>
+                </div>
+
+            </section>
+
+
+            {% if status_message or error_message %}
+            <section class="dashboard-section">
+
+                <div class="info-panel">
+                    <div class="info-icon">✦</div>
+
+                    <div>
+                        <h3>{{ "Update Notice" if status_message else "Attention Needed" }}</h3>
+                        <p>{{ status_message or error_message }}</p>
+                    </div>
+                </div>
+
+            </section>
+            {% endif %}
+
+
+            <!-- Filter Roster & Shifts -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Filter Branch Roster</h2>
+                        <p>Filter by store or search employees by name, email, job title, or role.</p>
+                    </div>
+                </div>
+
+                <form method="GET"
+                      action="{{ url_for('employee_staff.browse_staff') }}"
+                      class="staff-card">
+
+                    <div class="staff-form-grid">
+
+                        <div class="staff-field">
+                            <label for="store">Store</label>
+                            <select id="store" name="store">
+                                {% for s in stores %}
+                                    <option value="{{ s[0] }}"
+                                            {% if s[0] == valid_store_id %}selected{% endif %}>
+                                        {{ s[1] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="q">Search Staff</label>
+                            <input id="q"
+                                   type="text"
+                                   name="q"
+                                   value="{{ search_query }}"
+                                   placeholder="Name, email, title, or role">
+                        </div>
+
+                        <div class="staff-field">
+                            <button type="submit" class="primary-action-btn">
+                                Apply Filter
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- Schedule Shift -->
+            <section class="dashboard-section" id="shift-schedule">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Assign Shift</h2>
+                        <p>Schedule a shift window for a store employee.</p>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('employee_staff.assign_shift') }}"
+                      class="staff-card">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <input type="hidden"
+                           name="store_id"
+                           value="{{ valid_store_id }}">
+
+                    <div class="staff-form-grid">
+
+                        <div class="staff-field">
+                            <label for="shift_employee_id">Employee *</label>
+                            <select id="shift_employee_id"
+                                    name="employee_id"
+                                    required>
+                                <option value="">-- Select Employee --</option>
+                                {% for emp in staff_members %}
+                                    <option value="{{ emp[0] }}">
+                                        {{ emp[1] }} ({{ emp[5] }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="shift_date">Shift Date *</label>
+                            <input id="shift_date"
+                                   type="date"
+                                   name="shift_date"
+                                   required>
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="start_time">Start Time *</label>
+                            <input id="start_time"
+                                   type="time"
+                                   name="start_time"
+                                   required>
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="end_time">End Time *</label>
+                            <input id="end_time"
+                                   type="time"
+                                   name="end_time"
+                                   required>
+                        </div>
+
+                        <div class="staff-field">
+                            <button type="submit" class="primary-action-btn">
+                                Save Shift
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+                <div class="staff-card">
+                    <div class="staff-section-heading">
+                        <h2>Scheduled Shifts</h2>
+                        <span>{{ shifts|length }} shown</span>
+                    </div>
+
+                    <div class="staff-table-wrap">
+                        <table class="staff-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Employee</th>
+                                    <th>Job Title</th>
+                                    <th>Time</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sh in shifts %}
+                                    <tr>
+                                        <td><strong>{{ sh[2] }}</strong></td>
+                                        <td>{{ sh[1] }}</td>
+                                        <td>{{ sh[5] }}</td>
+                                        <td>{{ sh[3] }} – {{ sh[4] }}</td>
+                                        <td>
+                                            {% if session.get("manager_logged_in") %}
+                                                <form method="POST"
+                                                      action="{{ url_for('employee_staff.delete_shift') }}"
+                                                      class="inline-action-form">
+                                                    <input type="hidden"
+                                                           name="csrf_token"
+                                                           value="{{ csrf_token() }}">
+                                                    <input type="hidden"
+                                                           name="store_id"
+                                                           value="{{ valid_store_id }}">
+                                                    <input type="hidden"
+                                                           name="shift_id"
+                                                           value="{{ sh[0] }}">
+                                                    <button type="submit"
+                                                            class="remove-action-btn">
+                                                        Remove
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <span style="color: #94a3b8;">—</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" style="color: #94a3b8;">
+                                            No shifts scheduled for this store yet.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- Store Roster -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Store Roster</h2>
+                        <p>Employees assigned to this branch.</p>
+                    </div>
+                </div>
+
+                {% if session.get("manager_logged_in") %}
+                <form method="POST"
+                      action="{{ url_for('employee_staff.add_employee') }}"
+                      class="staff-card">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <input type="hidden"
+                           name="store_id"
+                           value="{{ valid_store_id }}">
+
+                    <div class="staff-form-grid">
+
+                        <div class="staff-field">
+                            <label for="first_name">First Name *</label>
+                            <input id="first_name"
+                                   type="text"
+                                   name="first_name"
+                                   required
+                                   placeholder="First name">
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="last_name">Last Name *</label>
+                            <input id="last_name"
+                                   type="text"
+                                   name="last_name"
+                                   required
+                                   placeholder="Last name">
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="email">Email *</label>
+                            <input id="email"
+                                   type="email"
+                                   name="email"
+                                   required
+                                   placeholder="name@roadready.com">
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="job_title">Job Title *</label>
+                            <input id="job_title"
+                                   type="text"
+                                   name="job_title"
+                                   required
+                                   placeholder="e.g. Parts Specialist">
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="dept_id">Department *</label>
+                            <select id="dept_id" name="dept_id" required>
+                                {% for dept in departments %}
+                                    <option value="{{ dept[0] }}">{{ dept[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="hourly_rate">Hourly Rate *</label>
+                            <input id="hourly_rate"
+                                   type="number"
+                                   step="0.01"
+                                   min="7.25"
+                                   name="hourly_rate"
+                                   value="15.00"
+                                   required>
+                        </div>
+
+                        <div class="staff-field">
+                            <label for="access_role">Access Role</label>
+                            <select id="access_role" name="access_role">
+                                <option value="STAFF">STAFF</option>
+                                <option value="MANAGER">MANAGER</option>
+                                <option value="ADMIN">ADMIN</option>
+                            </select>
+                        </div>
+
+                        <div class="staff-field">
+                            <button type="submit" class="primary-action-btn">
+                                Add Employee
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+                {% endif %}
+
+                <div class="staff-card">
+                    <div class="staff-table-wrap">
+                        <table class="staff-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Job Title</th>
+                                    <th>Department</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    {% if session.get("manager_logged_in") %}
+                                        <th>Manage</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for emp in staff_members %}
+                                    <tr>
+                                        <td><strong>{{ emp[1] }}</strong></td>
+                                        <td>{{ emp[5] }}</td>
+                                        <td>{{ emp[6] }}</td>
+                                        <td>{{ emp[3] or "—" }}</td>
+                                        <td><span class="role-badge">{{ emp[2] }}</span></td>
+                                        <td>
+                                            {% if emp[4] %}
+                                                <span class="active-badge">Active</span>
+                                            {% else %}
+                                                <span class="inactive-badge">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        {% if session.get("manager_logged_in") %}
+                                            <td>
+                                                <form method="POST"
+                                                      action="{{ url_for('employee_staff.update_employee') }}"
+                                                      class="inline-action-form">
+                                                    <input type="hidden"
+                                                           name="csrf_token"
+                                                           value="{{ csrf_token() }}">
+                                                    <input type="hidden"
+                                                           name="store_id"
+                                                           value="{{ valid_store_id }}">
+                                                    <input type="hidden"
+                                                           name="employee_id"
+                                                           value="{{ emp[0] }}">
+
+                                                    <select name="access_role">
+                                                        {% for r in ["STAFF", "MANAGER", "ADMIN"] %}
+                                                            <option value="{{ r }}"
+                                                                    {% if emp[2] == r %}selected{% endif %}>
+                                                                {{ r }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+
+                                                    <select name="is_active">
+                                                        <option value="1"
+                                                                {% if emp[4] %}selected{% endif %}>
+                                                            Active
+                                                        </option>
+                                                        <option value="0"
+                                                                {% if not emp[4] %}selected{% endif %}>
+                                                            Inactive
+                                                        </option>
+                                                    </select>
+
+                                                    <button type="submit"
+                                                            class="secondary-action-btn">
+                                                        Update
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" style="color: #94a3b8;">
+                                            No employees found for this store filter.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <footer class="dashboard-footer">
+                © 2026 RoadReady. All rights reserved.
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+</html>
