@@ -14,6 +14,13 @@ from routes.parts import parts
 from routes.product_details import product_details
 from routes.cart import cart
 
+from routes.employee_auth import employee_auth
+from routes.employee import employee
+from routes.orders import orders
+from routes.inventory import inventory
+from routes.employee_deliveries import employee_deliveries
+from routes.employee_staff import employee_staff
+from routes.employee_reports import employee_reports
 
 def create_app():
     app = Flask(__name__)
@@ -38,6 +45,14 @@ def create_app():
     app.register_blueprint(parts)
     app.register_blueprint(product_details)
     app.register_blueprint(cart)
+    
+    app.register_blueprint(employee_auth)
+    app.register_blueprint(employee)
+    app.register_blueprint(orders)
+    app.register_blueprint(inventory)
+    app.register_blueprint(employee_deliveries)
+    app.register_blueprint(employee_staff)
+    app.register_blueprint(employee_reports)
     @app.route("/test-db")
     def test_db():
         try:
