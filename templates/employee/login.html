@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Employee Sign In | RoadReady</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <section class="auth-brand-panel">
+
+            <a href="{{ url_for('home') }}" class="brand-logo">
+                <span class="brand-icon">R</span>
+                <span>RoadReady</span>
+            </a>
+
+            <div class="brand-content">
+                <span class="eyebrow">EMPLOYEE OPERATIONS PORTAL</span>
+
+                <h1>
+                    Keep operations
+                    <span>road ready.</span>
+                </h1>
+
+                <p>
+                    Sign in with your employee credentials to manage inventory,
+                    customer orders, deliveries, and store operations.
+                </p>
+
+                <div class="brand-feature">
+                    <span class="feature-icon">✓</span>
+                    Real-time parts &amp; inventory tracking
+                </div>
+
+                <div class="brand-feature">
+                    <span class="feature-icon">✓</span>
+                    Order fulfillment &amp; delivery management
+                </div>
+
+                <div class="brand-feature">
+                    <span class="feature-icon">✓</span>
+                    Role-based employee &amp; manager access
+                </div>
+            </div>
+
+            <p class="brand-footer">
+                RoadReady Internal Portal &bull; Authorized staff only.
+            </p>
+
+        </section>
+
+
+        <section class="auth-form-panel">
+
+            <div class="auth-form-container">
+
+                <div class="mobile-brand">
+                    <span class="brand-icon">R</span>
+                    <span>RoadReady</span>
+                </div>
+
+                <div class="form-heading">
+                    <span class="eyebrow">EMPLOYEE ACCOUNT</span>
+                    <h2>Employee sign in</h2>
+                    <p>Enter your Employee ID and password to access the portal.</p>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert {{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST"
+                      action="{{ url_for('employee_auth.login') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <div class="form-group">
+                        <label for="employee_id">Employee ID</label>
+
+                        <input
+                            type="text"
+                            id="employee_id"
+                            name="employee_id"
+                            placeholder="Enter your employee ID"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <div class="password-label">
+                            <label for="password">Password</label>
+                        </div>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="auth-button">
+                        Sign In
+                        <span>→</span>
+                    </button>
+
+                </form>
+
+                <p class="auth-terms">
+                    By continuing, you agree to follow RoadReady internal
+                    security policies and protect account access.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

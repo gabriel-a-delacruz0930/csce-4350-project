@@ -16,8 +16,8 @@ from routes.cart import cart
 
 from routes.employee_auth import employee_auth
 from routes.employee import employee
-from routes.orders import orders
-from routes.inventory import inventory
+from routes.employee_orders import employee_orders
+from routes.employee_inventory import employee_inventory
 from routes.employee_deliveries import employee_deliveries
 from routes.employee_staff import employee_staff
 from routes.employee_reports import employee_reports
@@ -48,8 +48,8 @@ def create_app():
     
     app.register_blueprint(employee_auth)
     app.register_blueprint(employee)
-    app.register_blueprint(orders)
-    app.register_blueprint(inventory)
+    app.register_blueprint(employee_orders)
+    app.register_blueprint(employee_inventory)
     app.register_blueprint(employee_deliveries)
     app.register_blueprint(employee_staff)
     app.register_blueprint(employee_reports)
