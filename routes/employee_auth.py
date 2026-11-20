@@ -9,6 +9,7 @@ from flask import (
     url_for,
     flash,
     session,
+    current_app,
 )
 
 from db import get_db_connection
@@ -97,7 +98,7 @@ def login():
             flash("Invalid Employee ID or password.", "error")
 
         except Exception:
-            employee_auth.logger.exception("Error during employee login.")
+            current_app.logger.exception("Error during employee login.")
             flash("An error occurred during login. Please try again.", "error")
 
     return render_template("employee/login.html")

@@ -6,7 +6,7 @@ from routes.employee_auth import employee_login_required, manager_login_required
 employee_inventory = Blueprint("employee_inventory", __name__)
 
 
-@employee_inventory.route("/employee/inventory")
+@employee_inventory.route("/inventory")
 @employee_login_required
 def browse_inventory():
     search_query = request.args.get("q", "").strip()
@@ -119,7 +119,7 @@ def browse_inventory():
     )
 
 
-@employee_inventory.route("/employee/inventory", methods=["POST"])
+@employee_inventory.route("/inventory", methods=["POST"])
 @employee_login_required
 def update_inventory():
     store_id = request.form.get("store_id", type=int)
@@ -163,7 +163,7 @@ def update_inventory():
     return redirect(url_for("employee_inventory.browse_inventory", store=store_id))
 
 
-@employee_inventory.route("/employee/inventory/add", methods=["POST"])
+@employee_inventory.route("/inventory/add", methods=["POST"])
 @manager_login_required
 def edit_part():
     part_name = request.form.get("part_name", "").strip()

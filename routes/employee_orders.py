@@ -36,7 +36,7 @@ def get_order_statuses():
     return ORDER_STATUSES
 
 
-@employee_orders.route("/employee/orders")
+@employee_orders.route("/orders")
 @employee_login_required
 def browse_orders():
     search_query = request.args.get("q", "").strip()
@@ -161,7 +161,7 @@ def browse_orders():
     )
 
 
-@employee_orders.route("/employee/orders/update", methods=["POST"])
+@employee_orders.route("/orders/update", methods=["POST"])
 @employee_login_required
 def update_order():
     store_id = request.form.get("store_id", type=int) or session.get("store_id")
@@ -192,7 +192,7 @@ def update_order():
     return redirect_to_orders(store_id)
 
 
-@employee_orders.route("/employee/orders/po/create", methods=["POST"])
+@employee_orders.route("/orders/po/create", methods=["POST"])
 @employee_login_required
 def create_order():
     store_id = request.form.get("store_id", type=int) or session.get("store_id")
@@ -233,7 +233,7 @@ def create_order():
     return redirect_to_orders(store_id)
 
 
-@employee_orders.route("/employee/orders/po/receive", methods=["POST"])
+@employee_orders.route("/orders/po/receive", methods=["POST"])
 @manager_login_required
 def receive_order():
     store_id = request.form.get("store_id", type=int) or session.get("store_id")
@@ -263,7 +263,7 @@ def receive_order():
     return redirect_to_orders(store_id)
 
 
-@employee_orders.route("/employee/orders/cancel", methods=["POST"])
+@employee_orders.route("/orders/cancel", methods=["POST"])
 @employee_login_required
 def cancel_order():
     store_id = request.form.get("store_id", type=int) or session.get("store_id")
@@ -294,7 +294,7 @@ def cancel_order():
     return redirect_to_orders(store_id)
 
 
-@employee_orders.route("/employee/orders/return", methods=["POST"])
+@employee_orders.route("/orders/return", methods=["POST"])
 @employee_login_required
 def return_order():
     store_id = request.form.get("store_id", type=int) or session.get("store_id")
