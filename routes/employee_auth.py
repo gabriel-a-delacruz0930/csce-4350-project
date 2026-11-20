@@ -20,7 +20,7 @@ def employee_login_required(f):
     def decorated_function(*args, **kwargs):
         if not session.get("employee_logged_in"):
             flash("Please log in to access this page.", "error")
-            return redirect(url_for("employee.dashboard"))
+            return redirect(url_for("employee_auth.login"))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -31,7 +31,7 @@ def manager_login_required(f):
     def decorated_function(*args, **kwargs):
         if not session.get("manager_logged_in"):
             flash("Please log in to access this page.", "error")
-            return redirect(url_for("employee.dashboard"))
+            return redirect(url_for("employee_auth.login"))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -107,4 +107,4 @@ def login():
 def logout():
     session.clear()
     flash("You have been logged out.", "success")
-    return redirect(url_for("employee.dashboard"))
+    return redirect(url_for("employee_auth.login"))
