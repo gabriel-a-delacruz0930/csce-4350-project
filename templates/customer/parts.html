@@ -178,14 +178,15 @@
 
                                 </div>
 
-                                <button
-                                    type="button"
-                                    class="add-cart-button"
-                                    disabled
-                                    title="Shopping cart will be implemented next"
-                                >
-                                    Coming Soon
-                                </button>
+                                <form action="{{ url_for('cart.add_to_cart') }}" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="sku_id" value="{{ product[0] }}">
+                                    <input type="hidden" name="quantity" value="1">
+
+                                    <button type="submit" class="add-cart-button">
+                                        Add to Cart
+                                    </button>
+                                </form>
 
                             </div>
 

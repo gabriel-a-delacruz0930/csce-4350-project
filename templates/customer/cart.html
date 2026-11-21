@@ -162,9 +162,9 @@
                         will be calculated during checkout.
                     </p>
 
-                    <button type="button" class="checkout-button" disabled>
-                        Checkout - Coming Soon
-                    </button>
+                    <a href="{{ url_for('checkout.checkout_page') }}" class="checkout-button">
+                            Proceed to Checkout →
+                        </a>
 
                     <a href="{{ url_for('parts.browse_parts') }}" class="continue-link">
                         Continue Shopping

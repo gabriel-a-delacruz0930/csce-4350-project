@@ -303,14 +303,23 @@
 }
 
 .checkout-button {
+    display: block;
     width: 100%;
     padding: 14px;
     border: none;
     border-radius: 9px;
-    background: #334155;
-    color: #94a3b8;
+    background: #2563eb;
+    color: #ffffff;
     font-weight: 700;
-    cursor: not-allowed;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.checkout-button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
 .continue-link {
