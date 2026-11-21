@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Customer Profile | RoadReady</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+</head>
+<body>
+  <h1>My Profile</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul>
+        {% for category, msg in messages %}
+          <li><strong>{{ category }}:</strong> {{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('customer_profile.profile') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label>
+      First Name
+      <input type="text" name="first_name" value="{{ customer[1] if customer else '' }}" required>
+    </label><br>
+
+    <label>
+      Last Name
+      <input type="text" name="last_name" value="{{ customer[2] if customer else '' }}" required>
+    </label><br>
+
+    <label>
+      Email
+      <input type="email" name="email" value="{{ customer[3] if customer else '' }}" required>
+    </label><br>
+
+    <label>
+      Phone
+      <input type="text" name="phone" value="{{ customer[4] if customer and customer[4] else '' }}">
+    </label><br>
+
+    <button type="submit">Save Profile</button>
+  </form>
+</body>
+</html>

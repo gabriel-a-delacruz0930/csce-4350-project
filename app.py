@@ -13,6 +13,7 @@ from routes.vehicles import vehicles
 from routes.parts import parts
 from routes.product_details import product_details
 from routes.cart import cart
+from routes.customer_profile import customer_profile
 
 from routes.employee_auth import employee_auth
 from routes.employee import employee
@@ -45,6 +46,7 @@ def create_app():
     app.register_blueprint(parts)
     app.register_blueprint(product_details)
     app.register_blueprint(cart)
+    app.register_blueprint(customer_profile, url_prefix="/customer")
     
     app.register_blueprint(employee_auth, url_prefix="/employee")
     app.register_blueprint(employee, url_prefix="/employee")
